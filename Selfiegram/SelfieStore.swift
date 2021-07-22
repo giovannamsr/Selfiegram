@@ -119,15 +119,37 @@ final class SelfieStore
             .map { try JSONDecoder().decode(Selfie.self, from: $0) }
     }
     
-    //delete the selfie and its associated image by calling the other delete function
+    /// Deletes a selfie, and its corresponding image, from disk.
+    /// This function simply takes the ID from the Selfie you pass in, and gives it to the other version of the delete function.
+    /// - parameter selfie: the selfie you want deleted
+    /// - Throws: `SelfieStoreError` if it fails to delete the selfie from disk
     func delete(selfie:Selfie) throws
     {
-        throw SelfieStoreError.cannotSaveImage(nil)
+        try delete(id: selfie.id)
+        //throw SelfieStoreError.cannotSaveImage(nil)
     }
-    //delete the selfie and its associated image that matches the id parameter
+    
+    /// Deletes a selfie, and its corresponding image, from disk.
+    /// - parameter id: the id property of the Selfie you want deleted
+    /// - Throws: `SelfieStoreError` if it fails to delete the selfie from disk
     func delete(id:UUID) throws
     {
-        throw SelfieStoreError.cannotSaveImage(nil)
+        let selfieDataFileName = "\(id.uuidString).json"
+        let imageFileName = "\(id.uuidString)-image.jpg"
+        let selfieDataURL = self.documentsFolder.appendingPathComponent(selfieDataFileName)
+        let imageURL = self.documentsFolder.appendingPathComponent(imageFileName)
+        
+        //remove files if they exist
+        if FileManager.default.fileExists(atPath: selfieDataURL.path)
+        {
+            try FileManager.default.removeItem(at: selfieDataURL)
+        }
+        if FileManager.default.fileExists(atPath: imageURL.path)
+        {
+            try FileManager.default.removeItem(at: imageURL)
+        }
+        //remove image from cache
+        imageCache[id] = nil
     }
     //load the selfie that matches the id from disk
     func load(id:UUID) -> Selfie?
