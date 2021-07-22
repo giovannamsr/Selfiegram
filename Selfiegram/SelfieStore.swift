@@ -2,7 +2,7 @@
 //  SelfieStore.swift
 //  Selfiegram
 //
-//  Created by Marcelo Rodrigues de Sousa on 21/07/21.
+//  Created by Giovanna Rodrigues on 21/07/21.
 //
 
 import Foundation
@@ -41,11 +41,41 @@ enum SelfieStoreError : Error
 final class SelfieStore
 {
     static let shared = SelfieStore()
+    private var imageCache : [UUID:UIImage] = [:]
+    var documentsFolder : URL
+    {
+        return FileManager.default.urls(for: .documentDirectory, in: allDomainsMask).first!
+    }
     
     //return the image associated with a particular selfie's id or nil
     func getImage(id:UUID) -> UIImage?
     {
-        return nil
+        //if image is already in cache, return it
+        if let image = imageCache[id]
+        {
+            return image
+        }
+        
+        //if image is not in cache
+        let imageURL = documentsFolder.appendingPathComponent("\(id.uuidString)-image.jpg")
+        
+        //get data from file
+        guard let imageData = try? Data(contentsOf: imageURL) else
+        {
+            return nil
+        }
+        
+        //get image from data
+        guard let image = UIImage(data: imageData) else
+        {
+            return nil
+        }
+        
+        //store in cache
+        imageCache[id] = image
+        
+        return image
+        
     }
     //save the image to disk using the id passed in to associate it back with a selfie
     func setImage(id:UUID, image:UIImage?) throws
