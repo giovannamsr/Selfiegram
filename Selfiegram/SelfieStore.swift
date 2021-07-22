@@ -151,14 +151,34 @@ final class SelfieStore
         //remove image from cache
         imageCache[id] = nil
     }
-    //load the selfie that matches the id from disk
+    
+    /// Attempts to load a selfie from disk.
+    /// - parameter id: the id property of the Selfie object you want loaded from disk
+    /// - returns: the selfie with the matching id, or nil if it doesn't exist
     func load(id:UUID) -> Selfie?
     {
-        return nil
+        let dataFileName = "\(id.uuidString).json"
+        let dataURL = self.documentsFolder.appendingPathComponent(dataFileName)
+        //load the data in this file, convert into a Photo
+        if let data = try? Data(contentsOf: dataURL), let selfie = try? JSONDecoder().decode(Selfie.self, from: data)
+        {
+            return selfie
+        }
+        else
+        {
+            return nil
+        }
     }
-    //save the passed in selfie to disk
+    
+    /// Attempts to save a selfie to disk.
+    /// - parameter selfie: the selfie to save to disk
+    /// - Throws: `SelfieStoreError` if it fails to write the data
     func save(selfie:Selfie) throws
     {
-        throw SelfieStoreError.cannotSaveImage(nil)
+        let selfieData = try JSONEncoder().encode(selfie)
+        let fileName = "\(selfie.id.uuidString).json"
+        let destinationURL = self.documentsFolder.appendingPathComponent(fileName)
+        try selfieData.write(to: destinationURL)
+        //throw SelfieStoreError.cannotSaveImage(nil)
     }
 }
