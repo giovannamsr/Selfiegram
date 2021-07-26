@@ -42,6 +42,20 @@ class SelfieListViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
         
     }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    {
+        return selfies.count
+    }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        
+        let selfie = selfies[indexPath.row]
+        cell.textLabel?.text = selfie.title
+        
+        return cell
+    }
 
 
 }
