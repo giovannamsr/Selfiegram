@@ -17,11 +17,11 @@ class Selfie : Codable
     {
         get
         {
-            return SelfieStore.shared.getImage(id = self.id)
+            return SelfieStore.shared.getImage(id: self.id)
         }
         set
         {
-            try? SelfieStore.shared.setImage(id = self.id, image = newValue)
+            try? SelfieStore.shared.setImage(id : self.id, image : newValue)
         }
     }
     init(title:String)
@@ -44,7 +44,7 @@ final class SelfieStore
     private var imageCache : [UUID:UIImage] = [:]
     var documentsFolder : URL
     {
-        return FileManager.default.urls(for: .documentDirectory, in: allDomainsMask).first!
+        return FileManager.default.urls(for: .documentDirectory, in: .allDomainsMask).first!
     }
     
     /// Gets an image by ID. Will be cached in memory for future lookups.
@@ -92,7 +92,7 @@ final class SelfieStore
         if let image = image
         {
             //try to convert the image to jpeg
-            guard let data = UIImageJPEGRepresentation(image, 0.9) else
+            guard let data = image.jpegData(compressionQuality: 0.9) else
             {
                 throw SelfieStoreError.cannotSaveImage(image)
             }

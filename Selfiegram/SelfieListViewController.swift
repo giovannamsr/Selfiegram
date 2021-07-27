@@ -6,39 +6,62 @@
 //
 
 import UIKit
+import CoreLocation
 
-class SelfieListViewController: UIViewController {
+class SelfieListViewController: UITableViewController {
+    
+    var detailViewController: DetailViewController? = nil
     
     var selfies : [Selfie] = []
-
-    override func viewDidLoad() {
+    
+    let timeIntervalFormatter : DateComponentsFormatter = {
+            let formatter = DateComponentsFormatter()
+            formatter.unitsStyle = .spellOut
+            formatter.maximumUnitCount = 1
+            return formatter
+        }()
+    
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
+        // loading the list of selfies from the selfie store
+        
+        let button = UIButton(frame: CGRect(x:0,y:0,width: 300, height: 70))
+        
+        button.setTitle("present", for:.normal)
+        button.setTitleColor(.white, for:.normal)
+        button.backgroundColor = .systemBlue
+        button.center = view.center
+        
+        
         do
         {
-            //get the list of photos ordered by date
-            selfies = try SelfieStore.shared.listSelfies().sorted(by: {$0.created > $1.created})
+            // Get the list of photos, sorted by date (newer first)
+            selfies = try SelfieStore.shared.listSelfies().sorted(by: { $0.created > $1.created })
         }
         catch let error
         {
             showError(message: "Failed to load selfies: \(error.localizedDescription)")
         }
+            
         if let split = splitViewController
         {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as? UINavigationController)?.topViewController as? DetailViewController
         }
+            
     }
     
-    func showError(message : String)
-    {
-        //crate alert controller with message
+       
+    
+    func showError(message : String) {
+        // Create an alert controller, with the message we received
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        
-        //add an action to it so we have a button to dismiss it
-        let action = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        // Add an action to it
+        let action = UIAlertAction(title: "OK",
+                                   style: .default, handler: nil)
         alert.addAction(action)
-        
-        //show alert
+        // Show the alert and its message
         self.present(alert, animated: true, completion: nil)
         
     }
@@ -47,16 +70,13 @@ class SelfieListViewController: UIViewController {
     {
         return selfies.count
     }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        
         let selfie = selfies[indexPath.row]
         cell.textLabel?.text = selfie.title
-        
         return cell
     }
-
-
 }
 

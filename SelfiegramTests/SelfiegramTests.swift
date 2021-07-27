@@ -2,7 +2,7 @@
 //  SelfiegramTests.swift
 //  SelfiegramTests
 //
-//  Created by Marcelo Rodrigues de Sousa on 20/07/21.
+//  Created by Giovanna Rodrigues on 20/07/21.
 //
 
 import XCTest
