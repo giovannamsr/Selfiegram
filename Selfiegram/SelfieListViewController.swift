@@ -73,9 +73,24 @@ class SelfieListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
+        //get cell from table view
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        //get a selfie and use it to configure the cell
         let selfie = selfies[indexPath.row]
+        //set up main label
         cell.textLabel?.text = selfie.title
+        //set up its time ago sublabel
+        if let interval = timeIntervalFormatter.string(from: selfie.created, to: Date())
+        {
+            cell.detailTextLabel?.text = "\(interval) ago"
+        }
+        else
+        {
+            cell.detailTextLabel?.text = nil
+        }
+        //show selfie image on the cell
+        cell.imageView?.image = selfie.image
+        
         return cell
     }
 }
