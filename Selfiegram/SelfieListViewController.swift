@@ -93,5 +93,28 @@ class SelfieListViewController: UITableViewController {
         
         return cell
     }
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool
+    {
+        return true
+    }
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath)
+    {
+        if editingStyle == .delete
+        {
+            let selfieToRemove = selfies[indexPath.row]
+            do
+            {
+                try SelfieStore.shared.delete(selfie: selfieToRemove)
+                selfies.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }
+            catch
+            {
+                let title = selfieToRemove.title
+                showError(message: "Failed to delete \(title).")
+            }
+        }
+    }
+    
 }
 
