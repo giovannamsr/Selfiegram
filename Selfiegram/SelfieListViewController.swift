@@ -21,6 +21,64 @@ class SelfieListViewController: UITableViewController {
             return formatter
         }()
     
+    @objc func createNewSelfie()
+    {
+        let imagePicker = UIImagePickerController()
+        //checks if camera is available
+        if UIImagePickerController.isSourceTypeAvailable(.camera)
+        {
+            imagePicker.sourceType = .camera
+            //checks if front camera is available
+            if UIImagePickerController.isCameraDeviceAvailable(.front)
+            {
+                imagePicker.cameraDevice = .front
+            }
+        }
+        else
+        {
+            imagePicker.sourceType = .photoLibrary
+        }
+        imagePicker.delegate = self
+        self.present(imagePicker, animated: true, completion: nil)
+    }
+    
+    func newSelfieTaken(image: UIImage)
+    {
+        let newSelfie = Selfie(title: "New Selfie")
+        newSelfie.image = image
+        do
+        {
+            try SelfieStore.shared.save(selfie: newSelfie)
+        }
+        catch let error
+        {
+            showError(message: "Can't save photo: \(error)")
+            return
+        }
+        selfies.insert(newSelfie, at: 0)
+        
+        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController)
+    {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any])
+    {
+        guard let image =
+                info[UIImagePickerController.InfoKey.editedImage.rawValue] as? UIImage
+                ?? info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else
+        {
+            let message = "Couldn't get a picture from the image picker!"
+            showError(message: message)
+            return
+        }
+        self.newSelfieTaken(image: image)
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
@@ -49,6 +107,8 @@ class SelfieListViewController: UITableViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as? UINavigationController)?.topViewController as? DetailViewController
         }
+        let addSelfieButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(createNewSelfie))
+        navigationItem.rightBarButtonItem = addSelfieButton
             
     }
     
@@ -117,4 +177,6 @@ class SelfieListViewController: UITableViewController {
     }
     
 }
+extension SelfieListViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate
+{ }
 
